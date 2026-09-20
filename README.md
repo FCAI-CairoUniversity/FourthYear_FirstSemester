@@ -1,6 +1,6 @@
 # 📚 Fourth Year, First Semester
 
-📌 A comprehensive collection of labs and assignments covering **Machine Learning, Service-Oriented Architecture, Geographical Information Systems, Selected Topics in Database, and Data Analytics**.
+📌 A comprehensive collection of labs and assignments covering **Brain Computer Interfacing, Generative Adversial Networks, Intelligent Autonomous Robotics, Selected Topics in AI 1, and Unsupervised Learning**.
 
 ---
 
@@ -8,11 +8,11 @@
 
 The repository is organized into subject-based folders for easy navigation:
 
-- **📁 Data Analytics.**
-- **📁 Machine Learning.**
-- **📁 Service-Oriented Architecture.**
-- **📁 Geographical Information Systems.**
-- **📁 Selected Topics in Database.**
+- **📁 Brain Computer Interfacing - AI444.**
+- **📁 Generative Adversial Networks - AI442.**
+- **📁 Intelligent Autonomous Robotics - AI441.**
+- **📁 Selected Topics in AI 1 - AI495.**
+- **📁 Unsupervised Learning - AI423.**
 
 ---
 
