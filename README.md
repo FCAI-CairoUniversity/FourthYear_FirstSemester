@@ -8,11 +8,11 @@
 
 The repository is organized into subject-based folders for easy navigation:
 
-- **📁 Compilers - **
+- **📁 Compilers -**
 - **📁 Data Analytics - DS342**
 - **📁 Machine Learning - CS467**
 - **📁 Selected Topics in CS**
-- **📁 Soft Computing - **
+- **📁 Soft Computing -**
 
 ---
 
