@@ -1,6 +1,6 @@
-# 📚 Fourth Year, First Semester
+# 📚 CS Department - Fourth Year, First Semester
 
-📌 A comprehensive collection of labs and assignments covering **Machine Learning, Service-Oriented Architecture, Geographical Information Systems, Selected Topics in Database, and Data Analytics**.
+📌 A comprehensive collection of lecture notes, labs, section materials, and assignments for the **Computer Science (CS)** department (First Semester).
 
 ---
 
@@ -8,20 +8,23 @@
 
 The repository is organized into subject-based folders for easy navigation:
 
-- **📁 Data Analytics - DS342.**
-- **📁 Machine Learning - CS467.**
-- **📁 Service-Oriented Architecture - IS434.**
-- **📁 Geographical Information Systems - IS443.**
-- **📁 Selected Topics in Database.**
+- **📁 Compilers - **
+- **📁 Data Analytics - DS342**
+- **📁 Machine Learning - CS467**
+- **📁 Selected Topics in CS**
+- **📁 Soft Computing - **
 
 ---
 
 ## 🛠️ How to Use
-1. Navigate to the relevant subject folder.
-2. Explore the tasks and projects.
-3. Refer to the README files within each folder for specific instructions.
+
+1. Switch/Checkout to the `CS` branch if you haven't already.
+2. Navigate to the relevant subject folder.
+3. Explore the tasks, lectures, and lab assignments.
+4. Refer to individual README files within each folder for specific instructions.
 
 ---
 
 ## 📝 Contribution
-Feel free to contribute by submitting pull requests or opening issues for improvements or additional resources.
+
+Contributions are always welcome! Feel free to contribute by submitting pull requests or opening issues for updates, additional materials, or fixes.
