@@ -1,30 +1,38 @@
-# 📚 CS Department - Fourth Year, First Semester
+# 🎓 FCAI-CU - 4th Year (First Semester) Resources
 
-📌 A comprehensive collection of lecture notes, labs, section materials, and assignments for the **Computer Science (CS)** department (First Semester).
+Welcome to the unofficial student-managed repository for **Faculty of Computers and Artificial Intelligence, Cairo University (FCAI-CU)** - 4th Year, 1st Semester.
 
----
-
-## 📂 Repository Structure
-
-The repository is organized into subject-based folders for easy navigation:
-
-- **📁 Compilers -**
-- **📁 Data Analytics - DS342**
-- **📁 Machine Learning - CS467**
-- **📁 Selected Topics in CS**
-- **📁 Soft Computing -**
+> ⚠️ **Disclaimer:** This is an unofficial, student-driven repository created solely to help students share lectures, section materials, lab tasks, and practice assignments. It is not affiliated with or officially endorsed by the faculty staff.
 
 ---
 
-## 🛠️ How to Use
+## 🎯 Repository Purpose
 
-1. Switch/Checkout to the `CS` branch if you haven't already.
-2. Navigate to the relevant subject folder.
-3. Explore the tasks, lectures, and lab assignments.
-4. Refer to individual README files within each folder for specific instructions.
+The goal of this repository is to centralize academic resources for senior students across different departments, making it easier to collaborate, access study materials, and stay up to date throughout the semester.
 
 ---
 
-## 📝 Contribution
+## 🔀 Department Branches
 
-Contributions are always welcome! Feel free to contribute by submitting pull requests or opening issues for updates, additional materials, or fixes.
+To keep things organized and clutter-free, each department has its dedicated branch containing its specific courses and materials. **Please select your department branch below to access your materials:**
+
+| Department                  | Branch Name | Direct Link                          |
+| :-------------------------- | :---------- | :----------------------------------- |
+| **Computer Science**        | `CS`        | 🔗 [Browse CS Branch](../../tree/CS) |
+| **Information Systems**     | `IS`        | 🔗 [Browse IS Branch](../../tree/IS) |
+| **Artificial Intelligence** | `AI`        | 🔗 [Browse AI Branch](../../tree/AI) |
+
+---
+
+## 🤝 How to Contribute
+
+We encourage all senior students to contribute and keep the materials updated!
+
+1. Switch to your department's branch (`CS`, `IS`, or `AI`).
+2. Add or update relevant course materials/labs in the designated folders.
+3. Submit a **Pull Request (PR)** or push directly if you have access.
+4. If you find missing content or incorrect solutions, feel free to open an **Issue**.
+
+---
+
+<p align="center">Made with ❤️ by FCAI Students for FCAI Students</p>
