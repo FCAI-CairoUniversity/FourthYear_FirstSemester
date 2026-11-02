@@ -1,3 +1,10 @@
+/* ==============================================================================
+CAIRO UNIVERSITY - FACULTY OF COMPUTING AND ARTIFICIAL INTELLIGENCE (FCAI)
+Information Systems Department
+SIS418: Selected Topics in Data Engineering - Spring 2026
+Lab 2: Partitioning
+============================================================================== */
+
 -- Check if the database already exists; if not, create it
 IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'FCAI_DB')
 BEGIN
