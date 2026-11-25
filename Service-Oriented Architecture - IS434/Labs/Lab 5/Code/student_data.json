@@ -1,0 +1,21 @@
+{
+  "student": {
+    "name": "Ahmed Mohamed",
+    "age": 22,
+    "isGraduated": false,
+    "address": {
+      "city": "Cairo",
+      "country": "Egypt"
+    },
+    "subjects": [
+      {
+        "name": "Mathematics",
+        "grade": "A"
+      },
+      {
+        "name": "Physics",
+        "grade": "B+"
+      }
+    ]
+  }
+}

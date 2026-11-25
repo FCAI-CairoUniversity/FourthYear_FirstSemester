@@ -1,0 +1,81 @@
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:tns="http://example.com/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/">
+
+    <!-- Types section -->
+    <types>
+        <xsd:schema targetNamespace="http://example.com/">
+            <xsd:complexType name="Person">
+                <xsd:sequence>
+                    <xsd:element name="name" type="xsd:string"/>
+                    <xsd:element name="age" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+    </types>
+
+    <!-- Messages for GetPerson operation -->
+    <message name="GetPersonRequest">
+        <part name="name" type="xsd:string"/>
+    </message>
+    <message name="GetPersonResponse">
+        <part name="person" type="tns:Person"/>
+    </message>
+
+    <!-- Messages for AddPerson operation -->
+    <message name="AddPersonRequest">
+        <part name="person" type="tns:Person"/>
+    </message>
+    <message name="AddPersonResponse">
+        <part name="confirmation" type="xsd:string"/>
+    </message>
+
+    <!-- PortType -->
+    <portType name="PersonServicePortType">
+        <operation name="GetPerson">
+            <input message="tns:GetPersonRequest"/>
+            <output message="tns:GetPersonResponse"/>
+        </operation>
+        <operation name="AddPerson">
+            <input message="tns:AddPersonRequest"/>
+            <output message="tns:AddPersonResponse"/>
+        </operation>
+    </portType>
+
+    <!-- Binding: rpc style -->
+    <binding name="PersonServiceBinding" type="tns:PersonServicePortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        
+        <operation name="GetPerson">
+            <soap:operation soapAction="getPerson"/>
+            <input>
+                <soap:body use="encoded" namespace="http://example.com/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="http://example.com/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+
+        <operation name="AddPerson">
+            <soap:operation soapAction="addPerson"/>
+            <input>
+                <soap:body use="encoded" namespace="http://example.com/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </input>
+            <output>
+                <soap:body use="encoded" namespace="http://example.com/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+            </output>
+        </operation>
+    </binding>
+
+    <!-- Service -->
+    <service name="PersonService">
+        <documentation>
+            This service provides operations to manage person data, such as adding and fetching person details.
+        </documentation>
+        <port name="PersonServicePort" binding="tns:PersonServiceBinding">
+            <soap:address location="http://localhost:8080/PersonService"/>
+        </port>
+    </service>
+</definitions>

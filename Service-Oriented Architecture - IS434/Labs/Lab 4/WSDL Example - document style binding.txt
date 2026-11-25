@@ -1,0 +1,80 @@
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:tns="http://example.com/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/">
+
+    <!-- Types section with person schema -->
+    <types>
+        <xsd:schema targetNamespace="http://example.com/">
+            <xsd:complexType name="Person">
+                <xsd:sequence>
+                    <xsd:element name="name" type="xsd:string"/>
+                    <xsd:element name="age" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:element name="person" type="tns:Person"/>
+        </xsd:schema>
+    </types>
+
+    <!-- Messages for GetPerson operation -->
+    <message name="GetPersonRequest">
+        <part name="personRequest" element="tns:person"/>
+    </message>
+    <message name="GetPersonResponse">
+        <part name="personResponse" element="tns:person"/>
+    </message>
+
+    <!-- Messages for AddPerson operation -->
+    <message name="AddPersonRequest">
+        <part name="personData" element="tns:person"/>
+    </message>
+    <message name="AddPersonResponse">
+        <part name="personAddedConfirmation" type="xsd:string"/>
+    </message>
+
+    <!-- PortType -->
+    <portType name="PersonServicePortType">
+        <operation name="GetPerson">
+            <input message="tns:GetPersonRequest"/>
+            <output message="tns:GetPersonResponse"/>
+        </operation>
+        <operation name="AddPerson">
+            <input message="tns:AddPersonRequest"/>
+            <output message="tns:AddPersonResponse"/>
+        </operation>
+    </portType>
+
+    <!-- Binding -->
+    <binding name="PersonServiceBinding" type="tns:PersonServicePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="GetPerson">
+            <soap:operation soapAction="getPerson"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+        <operation name="AddPerson">
+            <soap:operation soapAction="addPerson"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+
+    <!-- Service -->
+    <service name="PersonService">
+        <documentation>
+            This service provides operations to manage person data, such as adding and fetching person details.
+        </documentation>
+        <port name="PersonServicePort" binding="tns:PersonServiceBinding">
+            <soap:address location="http://localhost:8080/PersonService"/>
+        </port>
+    </service>
+</definitions>

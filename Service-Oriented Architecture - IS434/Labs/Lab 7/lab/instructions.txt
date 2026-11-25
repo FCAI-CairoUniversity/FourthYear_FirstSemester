@@ -1,0 +1,30 @@
+1. Enable the virtual environment
+venv/Scripts/activate
+
+2. Run and show case "sample-dp-app"
+    2.1 python db.py [examine sqlite database created todos.db]
+    2.2 python app.py
+    2.3 Examine code in db.py and app.py and templates/index.py
+    2.4 Add some tasks/todos using the form
+    2.5 Check the data in todos.db (use SQLite Viewer extension for this)
+    2.6 Delete some tasks/todos using the page
+    2.7 Check the data in todos.db
+    2.8 exit the "sample-dp-app"
+
+3. Run and show case "sample-db-api"
+    3.1 python db.py
+    3.2 python app.py
+    3.3 Examine code in db.py and app.py and templates/index.py
+
+4. Test it by running API consumer "api-consumer-v1"
+    4.1 USE live server extension for this
+
+5. Examine network tab in developer tools and go through the requests 
+    being sent and response received
+6. Examine code in api-consumer-v1/index.html and api-consumer-v1/scripts/ui.js & api.js
+    script.js is the combination of ui.js and api.js but they are more cleaned and refactored
+
+Notes:
+Make sure the following extensions are installed
+1. Live Server
+2. SQLite Viewer

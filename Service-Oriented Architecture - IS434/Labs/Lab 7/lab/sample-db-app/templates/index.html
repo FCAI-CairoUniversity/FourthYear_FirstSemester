@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Flask TODO App</title>
+    <!-- Favicon Example -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='icons/favicon.png') }}">
+</head>
+
+<body>
+    <h1>Todo List</h1>
+    <form method="post">
+        <input name="task" type="text" placeholder="Add new task">
+        <input type="submit" value="Add">
+    </form>
+    <ul>
+        {% for task in tasks %}
+        <li>{{ task['task'] }} <a href="{{ url_for('delete', task_id=task['id']) }}">Delete</a></li>
+        {% endfor %}
+    </ul>
+</body>
+
+</html>
