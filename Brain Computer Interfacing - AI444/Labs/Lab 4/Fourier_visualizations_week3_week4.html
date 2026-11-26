@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Waves & the Fourier Transform: Interactive (Weeks 3 & 4)</title>
+<style>
+  :root {
+    --bg: #0b0f17; --panel: #111827; --border: #1f2937; --text: #e5e7eb; --muted: #9ca3af;
+    --cyan: #22d3ee; --orange: #fb923c; --lime: #84cc16; --red: #f43f5e; --yellow: #facc15;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, "Segoe UI", Roboto, sans-serif; }
+  header { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+  h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  .subtitle { color: var(--muted); margin: 0; font-size: 14px; }
+  .global { display: flex; gap: 16px; align-items: center; margin-left: auto; color: var(--muted); font-size: 13px; }
+  .global button { background: #1f2937; color: var(--text); border: 1px solid #374151; border-radius: 6px; padding: 4px 12px; cursor: pointer; font: inherit; }
+  main { padding: 16px 20px 40px; max-width: 1500px; margin: 0 auto; }
+  .week { margin: 26px 0 4px; font-size: 22px; font-weight: 600; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  .part { margin: 22px 0 10px; font-size: 17px; font-weight: 600; }
+  .part span { color: var(--muted); font-weight: 400; margin-right: 8px; }
+  section { display: grid; grid-template-columns: 300px 1fr; gap: 18px; }
+  .controls { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; align-self: start; }
+  .controls h2 { margin: 0 0 6px; font-size: 16px; }
+  .controls p { margin: 0 0 10px; color: var(--muted); font-size: 13.5px; }
+  .controls p b { color: var(--text); }
+  .ctrl { margin: 10px 0; }
+  .ctrl label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+  .ctrl label output { color: var(--text); font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--cyan); }
+  fieldset { border: 1px solid var(--border); border-radius: 8px; margin: 10px 0; padding: 4px 10px 6px; }
+  legend { font-size: 12px; color: var(--muted); padding: 0 4px; }
+  .readout { margin-top: 12px; padding: 10px; background: #0b1220; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; white-space: pre-line; }
+  .stage { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  canvas { width: 100%; background: #05080e; border: 1px solid var(--border); border-radius: 10px; display: block; }
+  .h420 { height: 420px; } .h360 { height: 360px; } .h300 { height: 300px; }
+  .note { color: var(--muted); font-size: 13px; margin: 0; }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+  .radio { display: flex; gap: 14px; font-size: 13.5px; margin: 8px 0; }
+  @media (max-width: 900px) { section { grid-template-columns: 1fr; } .h420 { height: 660px; } .h360 { height: 600px; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Waves & the Fourier Transform</h1>
+    <p class="subtitle">Interactive companion to the Week 3 and Week 4 labs. Scroll down, move the sliders and watch the arrows.</p>
+  </div>
+  <div class="global">
+    <button id="pause">Pause</button>
+    <label>speed <input id="speed" type="range" min="0.1" max="2" step="0.1" value="1" style="width:90px; vertical-align:middle"></label>
+  </div>
+</header>
+
+<main>
+  <div class="week">Week 3: Waves and the Fourier Transform</div>
+
+  <div class="part"><span>1.</span>From a spinning arrow to a wave</div>
+  <section id="t1">
+    <div class="controls">
+      <h2>From a spinning arrow to a wave</h2>
+      <p>The arrow spins around the circle. Its shadow on the <b>x-axis</b> is <b style="color:var(--cyan)">cos</b>, its shadow on the <b>y-axis</b> is <b style="color:var(--orange)">sin</b>. Recording the shadows over time draws the waves.</p>
+      <p><code>A · cos(2π f t + φ)</code></p>
+      <div class="ctrl"><label>Amplitude A (arrow length) <output id="a1o"></output></label><input id="a1" type="range" min="0.2" max="1.5" step="0.05" value="1"></div>
+      <div class="ctrl"><label>Frequency f (turns per second) <output id="f1o"></output></label><input id="f1" type="range" min="0.1" max="2" step="0.05" value="0.5"></div>
+      <div class="ctrl"><label>Phase φ (start angle) <output id="p1o"></output></label><input id="p1" type="range" min="-180" max="180" step="5" value="0"></div>
+      <div class="readout" id="r1"></div>
+    </div>
+    <div class="stage">
+      <canvas id="c1" class="h420"></canvas>
+      <p class="note">The dashed lines connect the arrow's shadows to the newest point of each wave. Try φ = −90°: the cosine becomes a sine.</p>
+    </div>
+  </section>
+
+  <div class="part"><span>2.</span>Phase difference: two waves with the same frequency</div>
+  <section id="t2">
+    <div class="controls">
+      <h2>Two waves, same frequency</h2>
+      <p>Adding two waves = adding their arrows <b>tip to tail</b>. They spin together, so the angle between them (<b>Δφ</b>) never changes. The <b style="color:var(--lime)">sum</b> is one wave with the same frequency.</p>
+      <div class="ctrl"><label>A₁ <output id="pa1o"></output></label><input id="pa1" type="range" min="0" max="1.5" step="0.05" value="1"></div>
+      <div class="ctrl"><label>A₂ <output id="pa2o"></output></label><input id="pa2" type="range" min="0" max="1.5" step="0.05" value="1"></div>
+      <div class="ctrl"><label>Phase difference Δφ <output id="pdo"></output></label><input id="pd" type="range" min="0" max="360" step="5" value="90"></div>
+      <p>Try 0° (reinforce), 180° (cancel), 90° (√2).</p>
+      <div class="readout" id="r2"></div>
+    </div>
+    <div class="stage">
+      <canvas id="c2" class="h420"></canvas>
+      <p class="note">A_result = √(A₁² + A₂² + 2·A₁·A₂·cos Δφ): the length of the green arrow. Perfect cancellation needs A₁ = A₂ and Δφ = 180°.</p>
+    </div>
+  </section>
+
+  <div class="part"><span>3.</span>The Fourier transform</div>
+  <section id="t3">
+    <div class="controls">
+      <h2>Build a signal, find its waves</h2>
+      <p>1 s of signal, 100 samples. The default is the Week 3 test signal <code>1 + 2·sin(2π·4t) + cos(2π·10t + π/4)</code>.</p>
+      <div class="ctrl"><label>Constant (0 Hz) <output id="dco"></output></label><input id="dc" type="range" min="-2" max="2" step="0.1" value="1"></div>
+      <div id="comps"></div>
+      <div class="ctrl"><label>Noise <output id="nzo"></output></label><input id="nz" type="range" min="0" max="1" step="0.05" value="0"></div>
+      <fieldset><legend>Wrap the signal at a test frequency</legend>
+        <div class="ctrl"><label>Test frequency <output id="fwo"></output></label><input id="fw" type="range" min="0" max="20" step="0.25" value="4"></div>
+      </fieldset>
+      <div class="readout" id="r3"></div>
+    </div>
+    <div class="stage">
+      <canvas id="c3a" class="h420"></canvas>
+      <canvas id="c3b" class="h360"></canvas>
+      <p class="note">Bottom: multiplying the signal by an arrow spinning <i>backwards</i> at the test frequency wraps it around the origin. The average point (red) is the Fourier coefficient: it is far from 0 only when the test frequency is really in the signal. Hover the spectrum to read amplitude and phase.</p>
+    </div>
+  </section>
+
+  <div class="week">Week 4: The Inverse Fourier Transform and Negative Frequencies</div>
+
+  <div class="part"><span>4.</span>The inverse transform: arrows draw the signal</div>
+  <section id="t4">
+    <div class="controls">
+      <h2>Inverse transform: arrows draw the signal</h2>
+      <p>Every Fourier coefficient is an arrow. Let each one spin at its own frequency and put them <b>tip to tail</b>: the last tip draws the signal (the signal comes from part 3 above).</p>
+      <p>Here the <b>real part</b> is drawn upwards, so the tip lines up with the time plot.</p>
+      <div class="ctrl"><label>Keep the K biggest coefficients <output id="kko"></output></label><input id="kk" type="range" min="1" max="100" step="1" value="100"></div>
+      <p>Few coefficients = <b>compression</b>. Add noise in part 3 and keep 5: the noise disappears (<b>denoising</b>).</p>
+      <div class="readout" id="r4"></div>
+    </div>
+    <div class="stage">
+      <canvas id="c4" class="h420"></canvas>
+      <p class="note">Gray dots: the original samples. Cyan: the signal rebuilt from the kept arrows. Red: the current tip.</p>
+    </div>
+  </section>
+
+  <div class="part"><span>5.</span>Negative frequencies</div>
+  <section id="t5">
+    <div class="controls">
+      <h2>Negative frequencies</h2>
+      <p>A real cosine is made of <b>two</b> half-size arrows spinning in <b>opposite</b> directions (+f and −f). Their up/down parts cancel, so the sum stays on the real axis.</p>
+      <p>A complex signal <code>A·(cos + i·sin)</code> is <b>one</b> arrow: no mirror in the spectrum.</p>
+      <div class="radio">
+        <label><input type="radio" name="mode" value="real" checked> real A·cos</label>
+        <label><input type="radio" name="mode" value="complex"> complex A·e^(i2πft)</label>
+      </div>
+      <div class="ctrl"><label>Frequency f (Hz) <output id="f5o"></output></label><input id="f5" type="range" min="1" max="10" step="1" value="5"></div>
+      <div class="ctrl"><label>Amplitude A <output id="a5o"></output></label><input id="a5" type="range" min="0.5" max="3" step="0.1" value="3"></div>
+      <div class="readout" id="r5"></div>
+    </div>
+    <div class="stage">
+      <canvas id="c5" class="h420"></canvas>
+      <p class="note">Animation slowed down 10×. Spectrum: index fi from 0 to 99; indices above N/2 = 50 are the negative frequencies.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const TAU = 2 * Math.PI;
+const COL = { cyan: '#22d3ee', orange: '#fb923c', lime: '#84cc16', red: '#f43f5e', yellow: '#facc15',
+              white: '#e5e7eb', gray: '#6b7280', dim: '#374151', frame: '#1f2937', text: '#9ca3af' };
+const N = 100;                                   // samples per 1 s window (fs = 100 Hz)
+
+// ---------- drawing helpers ----------
+function fit(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const r = canvas.getBoundingClientRect();
+  const W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+  if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, r.width, r.height);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  return { ctx, w: r.width, h: r.height };
+}
+function seg(ctx, x0, y0, x1, y1, color, lw = 1, dash = null) {
+  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); ctx.setLineDash([]);
+}
+function label(ctx, s, x, y, color = COL.text, align = 'left', size = 12, base = 'alphabetic') {
+  ctx.fillStyle = color; ctx.font = `${size}px system-ui, sans-serif`; ctx.textAlign = align; ctx.textBaseline = base;
+  ctx.fillText(s, x, y);
+}
+function dot(ctx, x, y, r, color) { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
+function ring(ctx, x, y, r, color, lw = 1, dash = [3, 4]) {
+  if (r <= 0) return;
+  ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.setLineDash(dash || []);
+  ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+}
+function arrow(ctx, x0, y0, x1, y1, color, lw = 2.5) {
+  const len = Math.hypot(x1 - x0, y1 - y0);
+  if (len < 0.5) return;
+  const a = Math.atan2(y1 - y0, x1 - x0), hl = Math.min(11, len * 0.35);
+  const bx = x1 - hl * 0.8 * Math.cos(a), by = y1 - hl * 0.8 * Math.sin(a);
+  seg(ctx, x0, y0, bx, by, color, lw);
+  ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x1, y1);
+  ctx.lineTo(x1 - hl * Math.cos(a - 0.4), y1 - hl * Math.sin(a - 0.4));
+  ctx.lineTo(x1 - hl * Math.cos(a + 0.4), y1 - hl * Math.sin(a + 0.4));
+  ctx.closePath(); ctx.fill();
+}
+// A plotting area: data → pixels, frame, zero lines, ticks and title.
+function axes(ctx, r, xr, yr, title, o = {}) {
+  const X = x => r.x + (x - xr[0]) / (xr[1] - xr[0]) * r.w;
+  const Y = y => r.y + r.h - (y - yr[0]) / (yr[1] - yr[0]) * r.h;
+  ctx.strokeStyle = COL.frame; ctx.lineWidth = 1; ctx.setLineDash([]); ctx.strokeRect(r.x, r.y, r.w, r.h);
+  if (yr[0] < 0 && yr[1] > 0) seg(ctx, r.x, Y(0), r.x + r.w, Y(0), COL.dim);
+  if (xr[0] < 0 && xr[1] > 0 && o.xzero !== false) seg(ctx, X(0), r.y, X(0), r.y + r.h, COL.dim);
+  (o.xticks || []).forEach(v => { seg(ctx, X(v), r.y + r.h, X(v), r.y + r.h + 4, COL.gray);
+    label(ctx, o.xfmt ? o.xfmt(v) : String(v), X(v), r.y + r.h + 15, COL.text, 'center', 11); });
+  (o.yticks || []).forEach(v => { seg(ctx, r.x - 4, Y(v), r.x, Y(v), COL.gray);
+    label(ctx, String(v), r.x - 7, Y(v), COL.text, 'right', 11, 'middle'); });
+  if (title) label(ctx, title, r.x, r.y - 8, COL.white, 'left', 13);
+  if (o.xlabel) label(ctx, o.xlabel, r.x + r.w, r.y + r.h + 30, COL.text, 'right', 11);
+  return { X, Y, r };
+}
+function curve(ctx, A, xs, ys, color, lw = 2, alpha = 1) {
+  ctx.globalAlpha = alpha; ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.beginPath();
+  for (let i = 0; i < xs.length; i++) { const px = A.X(xs[i]), py = A.Y(ys[i]); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+  ctx.stroke(); ctx.globalAlpha = 1;
+}
+function square(x, y, maxW, maxH) { const s = Math.max(60, Math.min(maxW, maxH)); return { x, y, w: s, h: s }; }
+// Square complex-plane panel + nRight plots: side by side when wide, stacked when narrow.
+function layout(w, h, nRight = 1) {
+  const gap = 50;
+  if (w >= 700) {
+    const s = Math.max(60, Math.min(w * 0.38, h - 70)), x0 = 40 + s + 60, rh = (s - gap * (nRight - 1)) / nRight;
+    return { P: { x: 40, y: 30, w: s, h: s }, R: Array.from({ length: nRight }, (_, i) => ({ x: x0, y: 30 + i * (rh + gap), w: w - x0 - 20, h: rh })) };
+  }
+  const s = Math.max(60, Math.min(w - 70, h * 0.45)), y0 = 30 + s + 55, rh = (h - y0 - 40 - gap * (nRight - 1)) / nRight;
+  return { P: { x: (w - s) / 2, y: 30, w: s, h: s }, R: Array.from({ length: nRight }, (_, i) => ({ x: 45, y: y0 + i * (rh + gap), w: w - 65, h: rh })) };
+}
+const fmt = (v, d = 2) => (Math.abs(v) < 0.5 * 10 ** -d ? 0 : v).toFixed(d);
+
+// ---------- controls: show slider values ----------
+function bindOutputs() {
+  const units = { p1: '°', pd: '°', f1: ' Hz', fw: ' Hz', f5: ' Hz' };
+  document.querySelectorAll('input[type=range]').forEach(inp => {
+    const out = $(inp.id + 'o');
+    if (!out) return;
+    const unit = units[inp.id] || (inp.id.startsWith('cp') ? '°' : inp.id.startsWith('cf') ? ' Hz' : '');
+    const upd = () => { out.textContent = inp.value + unit; };
+    inp.addEventListener('input', upd); upd();
+  });
+}
+
+// ---------- Fourier helpers ----------
+function dft(x) {                              // c[k] = (1/N) Σ x[n]·e^{−i2πkn/N}
+  const n = x.length, re = new Float64Array(n), im = new Float64Array(n);
+  for (let k = 0; k < n; k++) {
+    let sr = 0, si = 0;
+    for (let j = 0; j < n; j++) { const a = -TAU * k * j / n; sr += x[j] * Math.cos(a); si += x[j] * Math.sin(a); }
+    re[k] = sr / n; im[k] = si / n;
+  }
+  return { re, im };
+}
+let seed = 7;
+function randn() {                             // seeded Gaussian noise (Box–Muller)
+  const u = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  return Math.sqrt(-2 * Math.log(u())) * Math.cos(TAU * u());
+}
+const noiseBase = Array.from({ length: N }, randn);
+
+// ---------- Tab 3 state: the signal builder (shared with Tab 4) ----------
+const comps = [ { f: 4, a: 2, p: -90 }, { f: 10, a: 1, p: 45 }, { f: 17, a: 0, p: 0 } ];
+function buildComps() {
+  const box = $('comps');
+  comps.forEach((c, i) => {
+    const fs = document.createElement('fieldset');
+    fs.innerHTML = `<legend>Wave ${i + 1}</legend>
+      <div class="ctrl"><label>frequency <output id="cf${i}o"></output></label><input id="cf${i}" type="range" min="1" max="20" step="1" value="${c.f}"></div>
+      <div class="ctrl"><label>amplitude <output id="ca${i}o"></output></label><input id="ca${i}" type="range" min="0" max="3" step="0.1" value="${c.a}"></div>
+      <div class="ctrl"><label>phase <output id="cp${i}o"></output></label><input id="cp${i}" type="range" min="-180" max="180" step="5" value="${c.p}"></div>`;
+    box.appendChild(fs);
+  });
+}
+let cache = { key: '' };
+function signalAndCoefs() {
+  const key = ['dc', 'nz', ...comps.flatMap((_, i) => ['cf' + i, 'ca' + i, 'cp' + i])].map(id => $(id).value).join('|');
+  if (key === cache.key) return cache;
+  const dc = +$('dc').value, nz = +$('nz').value;
+  const x = new Float64Array(N);
+  for (let n = 0; n < N; n++) {
+    let v = dc + nz * noiseBase[n];
+    comps.forEach((_, i) => { v += +$('ca' + i).value * Math.cos(TAU * +$('cf' + i).value * n / N + +$('cp' + i).value * Math.PI / 180); });
+    x[n] = v;
+  }
+  const { re, im } = dft(x);
+  const mag = Array.from(re, (r, k) => Math.hypot(r, im[k]));
+  const order = Array.from({ length: N }, (_, k) => k).sort((a, b) => mag[b] - mag[a]);
+  cache = { key, x, re, im, mag, order };
+  return cache;
+}
+const signedFreq = k => (k <= N / 2 ? k : k - N);    // index above N/2 = negative frequency
+
+// ---------- Tab 1 ----------
+function draw1(t) {
+  const { ctx, w, h } = fit($('c1'));
+  const A = +$('a1').value, f = +$('f1').value, ph = +$('p1').value * Math.PI / 180;
+  const R = 1.6, th = TAU * f * t + ph, cx = A * Math.cos(th), sy = A * Math.sin(th);
+  const L = layout(w, h);
+  const P = axes(ctx, L.P, [-R, R], [-R, R], 'Unit circle', { xticks: [-1, 0, 1], yticks: [-1, 0, 1] });
+  const px = P.X(0), py = P.Y(0), unit = P.X(1) - P.X(0);
+  ring(ctx, px, py, unit, COL.dim, 1, [2, 4]);
+  ring(ctx, px, py, A * unit, COL.gray, 1, []);
+  seg(ctx, P.X(cx), P.Y(sy), P.X(cx), py, COL.gray, 1, [4, 4]);
+  seg(ctx, P.X(cx), P.Y(sy), px, P.Y(sy), COL.gray, 1, [4, 4]);
+  seg(ctx, px, py, P.X(cx), py, COL.cyan, 5);
+  seg(ctx, px, py, px, P.Y(sy), COL.orange, 5);
+  arrow(ctx, px, py, P.X(cx), P.Y(sy), COL.white, 2.5);
+  // angle arc
+  ctx.strokeStyle = COL.yellow; ctx.lineWidth = 1.5; ctx.beginPath();
+  const thm = ((th % TAU) + TAU) % TAU; ctx.arc(px, py, 22, 0, -thm, true); ctx.stroke();
+  label(ctx, 'θ', px + 28, py - 8, COL.yellow, 'left', 13);
+
+  const T = 3;
+  const W = axes(ctx, L.R[0], [t - T, t], [-R, R], 'The two shadows over the last 3 s', { yticks: [-1, 0, 1], xzero: false });
+  const xs = [], cs = [], ss = [];
+  for (let i = 0; i <= 300; i++) { const tt = t - T + T * i / 300; xs.push(tt); cs.push(A * Math.cos(TAU * f * tt + ph)); ss.push(A * Math.sin(TAU * f * tt + ph)); }
+  curve(ctx, W, xs, cs, COL.cyan, 2);
+  curve(ctx, W, xs, ss, COL.orange, 2);
+  if (w >= 700) seg(ctx, P.X(cx), P.Y(sy), W.X(t), W.Y(sy), COL.orange, 1, [3, 5]);
+  dot(ctx, W.X(t), W.Y(cx), 5, COL.cyan); dot(ctx, W.X(t), W.Y(sy), 5, COL.orange);
+  label(ctx, 'cos (x-shadow)', W.r.x + 8, W.r.y + W.r.h - 26, COL.cyan);
+  label(ctx, 'sin (y-shadow)', W.r.x + 8, W.r.y + W.r.h - 10, COL.orange);
+  label(ctx, '← 3 s ago', W.r.x, W.r.y + W.r.h + 15, COL.text, 'left', 11);
+  label(ctx, 'now', W.r.x + W.r.w, W.r.y + W.r.h + 15, COL.text, 'right', 11);
+  const deg = ((th * 180 / Math.PI) % 360 + 360) % 360;
+  $('r1').textContent = `angle θ = ${deg.toFixed(0)}°\ncos part (x) = ${fmt(cx)}\nsin part (y) = ${fmt(sy)}\none turn every ${(1 / f).toFixed(2)} s`;
+}
+
+// ---------- Tab 2 ----------
+function draw2(t) {
+  const { ctx, w, h } = fit($('c2'));
+  const A1 = +$('pa1').value, A2 = +$('pa2').value, d = +$('pd').value * Math.PI / 180;
+  const tc = (0.25 * t) % 2;                        // shown wave: 1 Hz over 2 s, animated slowly
+  const th = TAU * tc;
+  const R = 3.2;
+  const L = layout(w, h);
+  const P = axes(ctx, L.P, [-R, R], [-R, R], 'Arrows (tip to tail)', { xticks: [-3, -2, -1, 0, 1, 2, 3], yticks: [-2, 0, 2] });
+  const v1 = [A1 * Math.cos(th), A1 * Math.sin(th)], v2 = [A2 * Math.cos(th + d), A2 * Math.sin(th + d)];
+  const s = [v1[0] + v2[0], v1[1] + v2[1]];
+  const Ares = Math.sqrt(Math.max(0, A1 * A1 + A2 * A2 + 2 * A1 * A2 * Math.cos(d)));
+  const unit = P.X(1) - P.X(0);
+  ring(ctx, P.X(0), P.Y(0), Ares * unit, COL.lime, 1, [3, 4]);
+  arrow(ctx, P.X(0), P.Y(0), P.X(v1[0]), P.Y(v1[1]), COL.cyan);
+  arrow(ctx, P.X(v1[0]), P.Y(v1[1]), P.X(s[0]), P.Y(s[1]), COL.orange);
+  arrow(ctx, P.X(0), P.Y(0), P.X(s[0]), P.Y(s[1]), COL.lime, 3);
+  seg(ctx, P.X(s[0]), P.Y(s[1]), P.X(s[0]), P.Y(0), COL.gray, 1, [3, 4]);
+
+  const W = axes(ctx, L.R[0], [0, 2], [-R, R],
+    'Waves (real parts) over 2 cycles', { xticks: [0, 0.5, 1, 1.5, 2], yticks: [-3, -2, -1, 0, 1, 2, 3], xlabel: 'time (cycles)' });
+  const xs = [], y1 = [], y2 = [], ys = [];
+  for (let i = 0; i <= 400; i++) { const tt = 2 * i / 400; xs.push(tt); y1.push(A1 * Math.cos(TAU * tt)); y2.push(A2 * Math.cos(TAU * tt + d)); ys.push(y1[i] + y2[i]); }
+  [Ares, -Ares].forEach(v => seg(ctx, W.r.x, W.Y(v), W.r.x + W.r.w, W.Y(v), COL.lime, 1, [4, 5]));
+  curve(ctx, W, xs, y1, COL.cyan, 1.5); curve(ctx, W, xs, y2, COL.orange, 1.5); curve(ctx, W, xs, ys, COL.lime, 3);
+  seg(ctx, W.X(tc), W.r.y, W.X(tc), W.r.y + W.r.h, COL.white, 1, [2, 4]);
+  dot(ctx, W.X(tc), W.Y(s[0]), 5, COL.lime);
+  if (w >= 700) seg(ctx, P.X(s[0]), P.Y(s[1]), W.X(tc), W.Y(s[0]), COL.dim, 1, [2, 5]);
+  label(ctx, 'wave 1', W.r.x + 8, W.r.y + 16, COL.cyan); label(ctx, 'wave 2', W.r.x + 70, W.r.y + 16, COL.orange); label(ctx, 'sum', W.r.x + 132, W.r.y + 16, COL.lime);
+  const phase = Ares > 1e-9 ? Math.atan2(A2 * Math.sin(d), A1 + A2 * Math.cos(d)) * 180 / Math.PI : NaN;
+  const kind = Ares > A1 + A2 - 1e-6 ? 'maximum reinforcement' : Ares < Math.abs(A1 - A2) + 1e-6 ? 'maximum cancellation' : 'in between';
+  $('r2').textContent = `A_result = √(A₁² + A₂² + 2A₁A₂cos Δφ)\n         = ${Ares.toFixed(3)}  (${kind})\nphase of the sum = ${isNaN(phase) ? 'none (no wave left)' : phase.toFixed(1) + '°'}`;
+}
+
+// ---------- Tab 3 ----------
+let hoverK = -1;
+function draw3() {
+  const S = signalAndCoefs();
+  const { ctx, w, h } = fit($('c3a'));
+  const ymax = Math.max(1, ...Array.from(S.x, Math.abs)) * 1.15;
+  const T = axes(ctx, { x: 50, y: 28, w: w - 70, h: h * 0.38 }, [0, 1], [-ymax, ymax], 'Signal (time domain): 100 samples in 1 s',
+    { xticks: [0, 0.25, 0.5, 0.75, 1], yticks: [Math.round(-ymax * 0.8), 0, Math.round(ymax * 0.8)] });
+  const ts = Array.from({ length: N }, (_, n) => n / N);
+  curve(ctx, T, ts, Array.from(S.x), COL.cyan, 2);
+  ts.forEach((tt, n) => dot(ctx, T.X(tt), T.Y(S.x[n]), 1.8, COL.cyan));
+
+  const half = N / 2, amps = [];
+  for (let k = 0; k <= half; k++) amps.push(k === 0 ? S.mag[0] : 2 * S.mag[k]);
+  const amax = Math.max(1, ...amps) * 1.15;
+  const F = axes(ctx, { x: 50, y: h * 0.38 + 80, w: w - 70, h: h - h * 0.38 - 120 }, [-0.5, half + 0.5], [0, amax],
+    'Amplitude spectrum (frequency domain): 2·|c| for each frequency', { xticks: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50], yticks: [0, Math.round(amax * 0.8 * 10) / 10], xlabel: 'Hz', xzero: false });
+  const fw = +$('fw').value;
+  for (let k = 0; k <= half; k++) {
+    const col = k === hoverK ? COL.yellow : (Math.abs(k - fw) < 1e-9 ? COL.red : COL.cyan);
+    seg(ctx, F.X(k), F.Y(0), F.X(k), F.Y(amps[k]), col, 2);
+    if (amps[k] > 1e-6) dot(ctx, F.X(k), F.Y(amps[k]), 3.5, col);
+  }
+  seg(ctx, F.X(fw), F.r.y, F.X(fw), F.r.y + F.r.h, COL.red, 1, [3, 4]);
+  if (hoverK >= 0) {
+    const ph = Math.atan2(S.im[hoverK], S.re[hoverK]) * 180 / Math.PI;
+    const txt = `${hoverK} Hz: amplitude ${amps[hoverK].toFixed(3)}` + (amps[hoverK] > 1e-6 ? `, phase ${fmt(ph, 1)}°` : ', no wave');
+    label(ctx, txt, F.r.x + F.r.w - 8, F.r.y + 16, COL.yellow, 'right', 13);
+  }
+  F.hit = F; c3Axes = F;
+
+  // winding plot
+  const g = fit($('c3b'));
+  const zr = [], zi = [];
+  for (let n = 0; n < N; n++) { const a = -TAU * fw * n / N; zr.push(S.x[n] * Math.cos(a)); zi.push(S.x[n] * Math.sin(a)); }
+  const mr = zr.reduce((a, b) => a + b) / N, mi = zi.reduce((a, b) => a + b) / N;
+  const R = ymax, wide = g.w >= 700;
+  const ps = wide ? g.h - 60 : Math.min(g.w - 100, g.h - 250);
+  const P = axes(g.ctx, square(wide ? 50 : (g.w - ps) / 2, 28, ps, ps), [-R, R], [-R, R], `Signal wrapped at ${fw} Hz`, {});
+  curve(g.ctx, P, zr.concat([zr[0]]), zi.concat([zi[0]]), COL.cyan, 1, 0.45);
+  zr.forEach((v, n) => dot(g.ctx, P.X(v), P.Y(zi[n]), 2, COL.cyan));
+  arrow(g.ctx, P.X(0), P.Y(0), P.X(mr), P.Y(mi), COL.red, 3);
+  dot(g.ctx, P.X(mr), P.Y(mi), 6, COL.red);
+  const tx = wide ? P.r.x + P.r.w + 30 : 20, ty = wide ? P.r.y + 20 : P.r.y + P.r.h + 30;
+  const amp = (fw === 0 ? 1 : 2) * Math.hypot(mr, mi);
+  [
+    ['Each sample x[n] is turned backwards by 2π·f·n/N.', COL.text],
+    ['Frequency in the signal → the points pile up on one side.', COL.text],
+    ['Not in the signal → they spread out and average to ~0.', COL.text],
+    [`average point c = ${fmt(mr, 3)} ${mi < 0 ? '−' : '+'} ${fmt(Math.abs(mi), 3)}i`, COL.red],
+    [`amplitude = ${fw === 0 ? '|c|' : '2·|c|'} = ${amp.toFixed(3)}`, COL.red],
+    [amp > 1e-3 ? `phase = angle of c = ${fmt(Math.atan2(mi, mr) * 180 / Math.PI, 1)}°` : 'phase: none (no wave here)', COL.red],
+    [Number.isInteger(fw) ? 'This is exactly one bar of the spectrum above.' : 'Not a whole number of cycles in 1 s: between two bars.', COL.white],
+  ].forEach(([s, c], i) => label(g.ctx, s, tx, ty + i * 21 + (i >= 3 ? 10 : 0) + (i >= 6 ? 10 : 0), c, 'left', 13));
+
+  const peaks = amps.map((a, k) => [a, k]).filter(([a, k]) => k > 0 && a > 0.05).map(([a, k]) => `${k} Hz → ${a.toFixed(2)}`);
+  $('r3').textContent = `0 Hz → ${amps[0].toFixed(2)}\n` + (peaks.length ? peaks.join('\n') : 'no other peaks');
+}
+let c3Axes = null;
+
+// ---------- Tab 4 ----------
+function draw4(t) {
+  const S = signalAndCoefs();
+  const K = +$('kk').value;
+  const kept = S.order.slice(0, K);
+  const { ctx, w, h } = fit($('c4'));
+  const u = (0.12 * t) % 1;                         // position inside the 1 s window (slowed down)
+  const reach = kept.reduce((a, k) => a + S.mag[k], 0) * 1.08 + 0.2;
+  const ymax = Math.max(1, ...Array.from(S.x, Math.abs)) * 1.15;
+  const R = Math.max(reach, ymax);
+  // Plane with real part UP (vertical) and imaginary part horizontal, like the transcript.
+  const L = layout(w, h);
+  const P = axes(ctx, L.P, [-R, R], [-R, R], `${K} arrows, tip to tail`, {});
+  label(ctx, 'real ↑', P.r.x + 4, P.r.y + 14, COL.text, 'left', 11);
+  label(ctx, 'imaginary →', P.r.x + P.r.w - 4, P.r.y + P.r.h - 6, COL.text, 'right', 11);
+  let re = 0, im = 0;
+  kept.forEach((k, i) => {
+    const a = TAU * signedFreq(k) * u, cr = S.re[k] * Math.cos(a) - S.im[k] * Math.sin(a), ci = S.re[k] * Math.sin(a) + S.im[k] * Math.cos(a);
+    const x0 = P.X(im), y0 = P.Y(re);
+    if (S.mag[k] > 1e-6) {
+      ring(ctx, x0, y0, S.mag[k] * (P.X(1) - P.X(0)), COL.dim, 1, []);
+      arrow(ctx, x0, y0, P.X(im + ci), P.Y(re + cr), i % 2 ? COL.orange : COL.cyan, 2);
+    }
+    re += cr; im += ci;
+  });
+  dot(ctx, P.X(im), P.Y(re), 5, COL.red);
+
+  const T = axes(ctx, L.R[0], [0, 1], [-R, R], 'Signal rebuilt from the kept arrows',
+    { xticks: [0, 0.25, 0.5, 0.75, 1], xlabel: 'time (s)' });
+  const fine = 500, xs = [], ys = [];
+  for (let i = 0; i <= fine; i++) {
+    const uu = i / fine; let v = 0;
+    kept.forEach(k => { const a = TAU * signedFreq(k) * uu; v += S.re[k] * Math.cos(a) - S.im[k] * Math.sin(a); });
+    xs.push(uu); ys.push(v);
+  }
+  for (let n = 0; n < N; n++) dot(ctx, T.X(n / N), T.Y(S.x[n]), 2.2, COL.gray);
+  curve(ctx, T, xs, ys, COL.cyan, 2);
+  if (w >= 700) seg(ctx, P.X(im), P.Y(re), T.X(u), T.Y(re), COL.red, 1, [3, 4]);
+  dot(ctx, T.X(u), T.Y(re), 6, COL.red);
+
+  let err = 0;
+  for (let n = 0; n < N; n++) {
+    let v = 0;
+    kept.forEach(k => { const a = TAU * k * n / N; v += S.re[k] * Math.cos(a) - S.im[k] * Math.sin(a); });
+    err += (v - S.x[n]) ** 2;
+  }
+  const freqs = [...new Set(kept.filter(k => S.mag[k] > 1e-6).map(k => Math.abs(signedFreq(k))))].sort((a, b) => a - b);
+  $('r4').textContent = `stored numbers: ${K} of ${N}\nerror vs original (RMS): ${Math.sqrt(err / N).toFixed(3)}\nfrequencies used (Hz): ${freqs.slice(0, 12).join(', ')}${freqs.length > 12 ? ', …' : ''}`;
+}
+
+// ---------- Tab 5 ----------
+function draw5(t) {
+  const { ctx, w, h } = fit($('c5'));
+  const f = +$('f5').value, A = +$('a5').value;
+  const complex = document.querySelector('input[name=mode]:checked').value === 'complex';
+  const u = (0.1 * t) % 1, th = TAU * f * u;
+  const R = 3.4;
+  const L = layout(w, h, 2);
+  const P = axes(ctx, L.P, [-R, R], [-R, R], complex ? 'One arrow (+f)' : 'Two arrows: +f and −f', { xticks: [-3, 0, 3], yticks: [-3, 0, 3] });
+  const unit = P.X(1) - P.X(0);
+  let sr, si;
+  if (complex) {
+    sr = A * Math.cos(th); si = A * Math.sin(th);
+    ring(ctx, P.X(0), P.Y(0), A * unit, COL.dim, 1, []);
+    arrow(ctx, P.X(0), P.Y(0), P.X(sr), P.Y(si), COL.lime, 3);
+  } else {
+    const a = [A / 2 * Math.cos(th), A / 2 * Math.sin(th)], b = [A / 2 * Math.cos(-th), A / 2 * Math.sin(-th)];
+    sr = a[0] + b[0]; si = a[1] + b[1];
+    ring(ctx, P.X(0), P.Y(0), A / 2 * unit, COL.dim, 1, []);
+    arrow(ctx, P.X(0), P.Y(0), P.X(a[0]), P.Y(a[1]), COL.cyan);
+    arrow(ctx, P.X(a[0]), P.Y(a[1]), P.X(sr), P.Y(si), COL.orange);
+    arrow(ctx, P.X(0), P.Y(0), P.X(sr), P.Y(si), COL.lime, 3);
+    label(ctx, '+f arrow', P.r.x + 8, P.r.y + P.r.h - 26, COL.cyan); label(ctx, '−f arrow', P.r.x + 8, P.r.y + P.r.h - 10, COL.orange);
+  }
+  dot(ctx, P.X(sr), P.Y(si), 5, COL.red);
+
+  const T = axes(ctx, L.R[0], [0, 1], [-R, R], 'Signal over 1 s', { xticks: [0, 0.5, 1], yticks: [-3, 0, 3] });
+  const xs = [], yr = [], yi = [];
+  for (let i = 0; i <= 400; i++) { const tt = i / 400; xs.push(tt); yr.push(A * Math.cos(TAU * f * tt)); yi.push(complex ? A * Math.sin(TAU * f * tt) : 0); }
+  curve(ctx, T, xs, yr, COL.cyan, 2);
+  if (complex) curve(ctx, T, xs, yi, COL.red, 2);
+  seg(ctx, T.X(u), T.r.y, T.X(u), T.r.y + T.r.h, COL.white, 1, [2, 4]);
+  label(ctx, 'real part', T.r.x + T.r.w - 8, T.r.y + 16, COL.cyan, 'right');
+  if (complex) label(ctx, 'imaginary part', T.r.x + T.r.w - 8, T.r.y + 32, COL.red, 'right');
+
+  const F = axes(ctx, L.R[1], [-1, N], [0, 3.4], 'Spectrum |c|, indices fi = 0 … 99',
+    { xticks: [0, 25, 50, 75, 99], yticks: [0, 1.5, 3], xzero: false });
+  seg(ctx, F.X(N / 2), F.r.y, F.X(N / 2), F.r.y + F.r.h, COL.red, 1, [4, 4]);
+  label(ctx, 'N/2: negative frequencies →', F.X(N / 2) + 6, F.r.y + 14, COL.red, 'left', 11);
+  const spikes = complex ? [[f, A]] : [[f, A / 2], [N - f, A / 2]];
+  spikes.forEach(([k, v]) => { seg(ctx, F.X(k), F.Y(0), F.X(k), F.Y(v), COL.lime, 2.5); dot(ctx, F.X(k), F.Y(v), 4, COL.lime);
+    const right = k > N * 0.8;
+    label(ctx, `fi=${k}: ${v.toFixed(2)}`, F.X(k) + (right ? -6 : 6), F.Y(v) + 4, COL.lime, right ? 'right' : 'left', 11); });
+
+  $('r5').textContent = complex
+    ? `one arrow of length ${A}\nspectrum: one spike, fi = ${f}\nimaginary part = ${fmt(si)} (not zero)`
+    : `two arrows of length ${(A / 2).toFixed(2)}\nspectrum: fi = ${f} and fi = ${N - f} (= −${f} Hz)\nimaginary part = ${fmt(si)} (always 0)\nshown amplitude: 2 × ${(A / 2).toFixed(2)} = ${A}`;
+}
+
+// ---------- animation loop: draw every section that is on screen ----------
+let paused = false, tAnim = 0, last = performance.now();
+const drawers = { t1: draw1, t2: draw2, t3: draw3, t4: draw4, t5: draw5 };
+const visible = new Set(Object.keys(drawers));
+const io = new IntersectionObserver(entries => entries.forEach(e => (e.isIntersecting ? visible.add(e.target.id) : visible.delete(e.target.id))));
+Object.keys(drawers).forEach(id => io.observe($(id)));
+$('pause').addEventListener('click', () => { paused = !paused; $('pause').textContent = paused ? 'Play' : 'Pause'; });
+$('c3a').addEventListener('mousemove', e => {
+  if (!c3Axes) return;
+  const r = $('c3a').getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top, A = c3Axes;
+  const inside = mx >= A.r.x && mx <= A.r.x + A.r.w && my >= A.r.y - 10 && my <= A.r.y + A.r.h;
+  hoverK = inside ? Math.max(0, Math.min(N / 2, Math.round((mx - A.r.x) / A.r.w * (N / 2 + 1) - 0.5))) : -1;
+});
+$('c3a').addEventListener('mouseleave', () => { hoverK = -1; });
+
+function frame(now) {
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (!paused) tAnim += dt * +$('speed').value;
+  visible.forEach(id => {
+    try { drawers[id](tAnim); } catch (err) { console.error(err); }
+  });
+  requestAnimationFrame(frame);
+}
+buildComps();
+bindOutputs();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
